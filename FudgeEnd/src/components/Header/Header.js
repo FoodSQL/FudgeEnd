@@ -33,7 +33,7 @@ class Header extends React.Component {
           </Link>
           <div className={s.banner}>
             <h1 className={s.bannerTitle}>FoodSQL</h1>
-            <p className={s.bannerDesc}>Cooking was never this easy!</p>
+            <p className={s.bannerDesc}>Cooking made SQL</p>
           </div>
         </div>
       </div>

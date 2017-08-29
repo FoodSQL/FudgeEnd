@@ -46,7 +46,7 @@ class Login extends React.Component {
             {this.props.title}
           </h1>
           <p className={s.lead}>
-            Log in with your username or company email address.
+            Log in with your email or social network.
           </p>
           <div className={s.formGroup}>
             <a className={s.facebook} href="/login/facebook">

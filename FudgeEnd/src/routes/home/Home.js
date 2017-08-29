@@ -11,6 +11,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import withStyles from 'isomorphic-style-loader/lib/withStyles';
 import s from './Home.css';
+import imageUrl from './table1.jpeg';
 
 class Home extends React.Component {
   static propTypes = {
@@ -26,23 +27,13 @@ class Home extends React.Component {
   render() {
     return (
       <div className={s.root}>
-        <div className={s.container}>
+        <img src={imageUrl}
+          alt="table"
+          width="100%"
+          height="100%"/>
+        {/* <div className={s.container}>
           <h1>Welcome!</h1>
-          {this.props.news.map(item =>
-            <article key={item.link} className={s.newsItem}>
-              <h1 className={s.newsTitle}>
-                <a href={item.link}>
-                  {item.title}
-                </a>
-              </h1>
-              <div
-                className={s.newsDesc}
-                // eslint-disable-next-line react/no-danger
-                dangerouslySetInnerHTML={{ __html: item.content }}
-              />
-            </article>,
-          )}
-        </div>
+        </div> */}
       </div>
     );
   }

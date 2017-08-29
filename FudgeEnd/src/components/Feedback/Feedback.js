@@ -18,16 +18,16 @@ class Feedback extends React.Component {
         <div className={s.container}>
           <a
             className={s.link}
-            href="https://gitter.im/kriasoft/react-starter-kit"
+            href="https://github.com/FoodSQL/FudgeEnd"
           >
-            Ask a question
+            Github Repo
           </a>
           <span className={s.spacer}>|</span>
           <a
             className={s.link}
-            href="https://github.com/kriasoft/react-starter-kit/issues/new"
+            href="https://github.com/FoodSQL"
           >
-            Report an issue
+            Org.
           </a>
         </div>
       </div>
