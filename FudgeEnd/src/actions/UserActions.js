@@ -1,4 +1,5 @@
 import fetch from 'isomorphic-fetch';
+import history from '../history';
 
 export function createNewUser(name, email, password) {
     return fetch('http://localhost:5000/user/new', {
@@ -15,8 +16,10 @@ export function createNewUser(name, email, password) {
             'Content-Type': 'application/json',
         }
     }).then(res => {
-        alert('User created!')
-        return res;
+        return res.json();
+    }).then( (json) => {
+      alert('User created! - ' + json['email']);
+      history.push('/');
     }).catch(err => err);
 }
 
@@ -34,9 +37,11 @@ export function loginServer(email, password) {
             'Content-Type': 'application/json',
         }
     }).then(res => {
-        if (res['status'] == 200) {
-          console.log(res)
-          alert('welcome '+ res['msg']);
+        return res.json();
+      }).then( (json) => {
+        if (json['status'] == 200) {
+          console.log(json['email']);
+          alert('welcome '+ json['name']);
         }else{
           alert('user not found');
         }
