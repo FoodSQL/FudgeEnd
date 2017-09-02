@@ -3,7 +3,11 @@ from json import dumps
 
 app = Flask(__name__)
 
-user={}
+user={'email':'molines@gmail.com',
+      'name' :'Rafael Molines',
+      'id'   :'0',
+      'status':200
+    }
 
 @app.route('/')
 def hello_world():
@@ -23,9 +27,4 @@ def register():
 def login():
     request_json = request.get_json();
     print(user)
-    if user['email'] == request_json['email']:
-        if user['password'] == request_json['password']:
-            user['status'] = 200
-            return dumps(user)
-    print("FAILED TO LOGIN")
-    return jsonify(status=201,content_type = "application/json")
+    return dumps(user)

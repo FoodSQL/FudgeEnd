@@ -11,6 +11,10 @@ const data = [
 ];
 
 function action() {
+  if(localStorage.getItem('id') === null){
+    return { redirect: '/login' };
+  }
+
   return {
     chunks: ['login'],
     title,

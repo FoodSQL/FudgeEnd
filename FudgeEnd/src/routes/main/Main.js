@@ -14,6 +14,7 @@ class Main extends React.Component {
     return (
       <div className={s.root}>
         <div className={s.container}>
+          <h1>{localStorage.getItem("name")}</h1>
           <Pantry ingredients={this.props.ingredients} />
         </div>
       </div>

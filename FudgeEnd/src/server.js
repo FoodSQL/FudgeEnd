@@ -31,7 +31,6 @@ import assets from './assets.json'; // eslint-disable-line import/no-unresolved
 import config from './config';
 
 const app = express();
-
 //
 // Tell any CSS tooling (such as Material UI) to use all vendor prefixes if the
 // user agent is not known.

@@ -40,10 +40,12 @@ export function loginServer(email, password) {
         return res.json();
       }).then( (json) => {
         if (json['status'] == 200) {
-          console.log(json['email']);
-          alert('welcome '+ json['name']);
+          alert('Welcome '+ json['name']);
+          localStorage.setItem('id',json['id']);
+          localStorage.setItem('name',json['name']);
+          localStorage.setItem('email',json['email']);
         }else{
-          alert('user not found');
+          alert('User not found');
         }
         return res;
     }).catch(err => err);
