@@ -14,6 +14,7 @@ import FlatButton from 'material-ui/FlatButton';
 import {Table,TableBody,TableHeader,TableHeaderColumn,TableRow,TableRowColumn,} from 'material-ui/Table';
 import IconButton from 'material-ui/IconButton';
 import SvgIcon from 'material-ui/SvgIcon';
+import Snackbar from 'material-ui/Snackbar';
 import pantry from '../pantry.js'
 
 const fruit = [
@@ -52,7 +53,8 @@ const styleTab = {
   };
 
 
-var pantry_list = []
+var pantry_list = [];
+var deletedItems = [];
 
 class Pantry extends Component {
     constructor(props) {
@@ -64,6 +66,8 @@ class Pantry extends Component {
             unit: '',
             searchText: '',
             amount: '',
+            message: 'Item(s) removed from your pantry',
+            open: false,
         };   
     }
 
@@ -97,6 +101,7 @@ class Pantry extends Component {
     handleChangeTab = (value) => {
         this.setState({
           value: value,
+          selected: [],
         });
       };
 
@@ -110,19 +115,42 @@ class Pantry extends Component {
     
     handleAdd = (event) => {
         if(this.state.searchText.length > 0){
-            pantry_list[this.state.value]['items'].push(
-                {
-                    id: 122,
-                    name: this.state.searchText,
-                    amount: this.state.amount,
-                    unit: this.state.unit
-                },
-            )
-            this.state.searchText = '',
-            this.state.amount = '',
-            this.state.unit = '',           
-            this.forceUpdate()
+
+            pantry.addItem(pantry_list[this.state.value]['pantry_id'],122,this.state.amount,this.state.unit,(result) => {
+                if(result.status == 200){
+                    pantry_list[this.state.value]['items'].push(
+                        {
+                            item_id: 122,
+                            item_name: this.state.searchText,
+                            item_amount: this.state.amount,
+                            item_unit: this.state.unit
+                        },
+                    )
+                    this.state.searchText = '',
+                    this.state.amount = '',
+                    this.state.unit = '',           
+                    this.forceUpdate()      
+                }else{
+                    alert("Something went wrong with the input")
+                }
+            })
         }
+    };
+
+    handleDelete = (event) => {
+        var current_pantry = this.state.value;
+        this.setState({message: 'Selected items deleted from ' + pantry_list[current_pantry]['pantry_name']});
+        if(this.state.selected === 'all'){
+            deletedItems = pantry_list[current_pantry]['items'];
+            pantry_list[current_pantry]['items'] = []
+        }else{
+            this.state.selected.map( function (item) {
+                deletedItems.push(pantry_list[current_pantry]['items'][item]);
+                pantry_list[current_pantry]['items'].splice(item, 1);
+            })
+        }
+        this.handleTouchTap(deletedItems);
+        this.setState({selected: []});
     }
 
     handleUpdateInput = (searchText) => {
@@ -143,6 +171,42 @@ class Pantry extends Component {
         });
       };
     
+    handleTouchTap = () => {
+        this.setState({
+        undo: true,
+        });
+    };
+
+    handleActionTouchTap = () => {
+        var worked = false;
+        var pantry_id = pantry_list[this.state.value]['pantry_id'];
+        deletedItems.forEach(function(item){
+            pantry.addItem(pantry_id,item.item_id,item.item_amount,item.item_unit,(result) => {
+                if(result.status == 200){           
+                    worked = true;
+                }else{
+                    worked = false;
+                }
+            })
+        })
+        if(worked){
+            console.log(pantry_list[this.state.value]['items']);
+            pantry_list[this.state.value]['items'].push.apply(pantry_list[this.state.value]['items'],deletedItems);
+            console.log(pantry_list[this.state.value]['items']);
+            deletedItems = [];
+        }
+        this.forceUpdate()
+        this.setState({
+        undo: false,
+        });
+    };
+
+    handleRequestClose = () => {
+        this.setState({
+        undo: false,
+        });
+    };
+
     render() {
 
         const actions = [
@@ -156,6 +220,13 @@ class Pantry extends Component {
 
         return (
             <div>
+                <Snackbar
+                open={this.state.undo}
+                message={this.state.message}
+                action="undo"
+                autoHideDuration={4000}
+                onActionTouchTap={this.handleActionTouchTap}
+                onRequestClose={this.handleRequestClose}/>
                 <Dialog
                 title="Add item to your Pantry"
                 actions={actions}
@@ -188,7 +259,18 @@ class Pantry extends Component {
                     </div>
                 </Dialog>
                 <Card>
-                    <CardTitle title="Pantry" subtitle="Your pantry" />
+                    <CardTitle title={
+                        <div>
+                        Pantry  
+                        <IconButton tooltip="New Pantry" tooltipPosition="top-right">
+                            <SvgIcon>
+                                <path d="M0 0h24v24H0z" fill="none"/>
+                                <path d="M14 10H2v2h12v-2zm0-4H2v2h12V6zm4 8v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zM2 16h8v-2H2v2z"/>
+                            </SvgIcon>
+                        </IconButton>
+                        </div>
+                    } 
+                    subtitle="Your pantry" />
                     <Tabs
                     value={this.state.value}
                     onChange={this.handleChangeTab}>
@@ -215,8 +297,8 @@ class Pantry extends Component {
                                 <TableBody displayRowCheckbox deselectOnClickaway={false}>
                                 {pantry['items'].map( (row, index) => (
                                 <TableRow key={index} selected={this.isSelected(index)}>
-                                    <TableRowColumn>{row.name}</TableRowColumn>
-                                    <TableRowColumn>{row.amount}{row.unit}</TableRowColumn>
+                                    <TableRowColumn>{row.item_name}</TableRowColumn>
+                                    <TableRowColumn>{row.item_amount}{row.item_unit}</TableRowColumn>
                                 </TableRow>
                                 ))}
                             </TableBody>
@@ -233,8 +315,8 @@ class Pantry extends Component {
                         </FloatingActionButton>
                         {this.state.selected.length > 0 && this.state.selected != "none" ? 
                             <IconButton 
-                            tooltip="Delete selected"
-                            onClick={this.handleOpen}>
+                            tooltip="Delete Selected"
+                            onClick={this.handleDelete}>
                                 <SvgIcon color='black'>
                                     <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
                                     <path d="M0 0h24v24H0z" fill="none"/>

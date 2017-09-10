@@ -16,33 +16,41 @@ var pantry = {
     items : []
 }
 var ingredient = {
-    id : null,
-    name : null,
-    amount : null,
-    unit : 'kg',
+    item_id : null,
+    item_name : null,
+    item_amount : null,
+    item_unit : 'kg',
 }
 
 export default window.pantry = {
-    getPantry1 : (user_id,callback) => {
+    getPantry1 : (user_id) => {
         fetch('http://localhost:5000/pantry/' + user_id, {
             method: 'GET'
             }).then((response) => {
                 let data = response.json().then((data) => {
-                    data['pantries'].forEach((pt) => {
-                        pt.pantry_id = pt['pantry_id'];
-                        pt['items'].forEach((item) => {
+                    var pantry_list = []
+                    data['pantries'].forEach(function (pt) {
+                        var pantry = {
+                                pantry_id : pt['pantry_id'],
+                                pantry_name: pt['pantry_name'],
+                                items : []
+                            }
+                        var items = []
+                        pt['items'].forEach(function(item) {
                             var ingredient = {
                                 id : item['item_id'],
                                 name : item['item_name'],
-                                amount : item['amount'],
+                                amount : item['item_amount'],
                                 unit : 'kg',
                             }
-                            pantry.items = pantry.items.push(ingredient);
+                            items.push(ingredient);
                         })
-                        pantry_list.pantries.push(pantry);
+                        pantry['items'] = items;
+                        pantry_list.push(pantry);
                     })
-                })
-            })  
+                    return pantry_list
+            })
+        })
     },
 
     getPantry : (user_id) => {
@@ -52,39 +60,39 @@ export default window.pantry = {
                 pantry_id: 37,
                 pantry_name:'Meu Apê',
                 items: [{
-                    id : 12,
-                    name : 'Rice',
-                    amount : 4,
-                    unit : 'kg',
+                    item_id : 12,
+                    item_name : 'Rice',
+                    item_amount : 4,
+                    item_unit : 'kg',
                     },
                     {
-                    id : 233,
-                    name : 'Pepper',
-                    amount : 0.2,
-                    unit : 'kg',
+                    item_id : 233,
+                    item_name : 'Pepper',
+                    item_amount : 0.2,
+                    item_unit : 'kg',
                     },
                 ]},{
                     pantry_id: 38,
                     pantry_name:'Casa da Mami',
                     items: [{
-                        id : 56,
-                        name : 'Banana',
-                        amount : 3,
-                        unit : 'kg',
+                        item_id : 56,
+                        item_name : 'Banana',
+                        item_amount : 3,
+                        item_unit : 'kg',
                         },
                         {
-                        id : 234,
-                        name : 'Beans',
-                        amount : 2,
-                        unit : 'kg',
+                        item_id : 234,
+                        item_name : 'Beans',
+                        item_amount : 2,
+                        item_unit : 'kg',
                         },
                         {
-                        id : 9,
-                        name : 'Shrimp',
-                        amount : 0.5,
-                        unit : 'kg',
+                        item_id : 9,
+                        item_name : 'Shrimp',
+                        item_amount : 0.5,
+                        item_unit : 'kg',
                         },
-                    ]}
+                    ]},
                 ]
         }
         var pantry_list = []
@@ -97,10 +105,10 @@ export default window.pantry = {
                 var items = []
                 pt['items'].forEach(function(item) {
                     var ingredient = {
-                        id : item['id'],
-                        name : item['name'],
-                        amount : item['amount'],
-                        unit : 'kg',
+                        item_id : item['item_id'],
+                        item_name : item['item_name'],
+                        item_amount : item['item_amount'],
+                        item_unit : 'kg',
                     }
                     items.push(ingredient);
                 })
@@ -110,26 +118,25 @@ export default window.pantry = {
             return pantry_list
     },
 
-    addItem : (pantry_id,item_id,amount,unit,callback) => {
+    addItem1 : (pantry_id,item_id,item_amount,item_unit,callback) => {
         fetch('http://localhost:5000/pantry/add_item', {
             method: 'POST',
             body : JSON.stringify({
                 pantry_id : pantry_id,
                 item_id : item_id,
-                amount : amount,
-                unit : unit,
+                item_amount : item_amount,
+                item_unit : item_unit,
             })
         }).then((response) => {
-            
+            callback(response)
         });
     },
 
-    subscribe : (storeName,callback) => {
-        emitter.addListener( `${storeName}_update`, callback )
+    addItem : (pantry_id,item_id,item_amount,item_unit,callback) => {
+        var response = {status : 200}
+        callback(response)
     },
 
-    unsubscribe : (storeName,callback) => {
-        emitter.removeListener( `${storeName}_update`, callback )
-    },
 
+    
 }
