@@ -33,6 +33,7 @@ export default window.auth = {
                         name : json['name'],
                     }
                     localStorage.setItem('user',JSON.stringify(user));
+                    window.location.reload()
                 })
             }
             callback(res)
@@ -76,6 +77,7 @@ export default window.auth = {
                         name : json['name'],
                     }
                     localStorage.setItem('user',JSON.stringify(user))
+                    window.location.reload()
                 })
             }else{
                 console.log( '[Auth] Register Failed ',json)

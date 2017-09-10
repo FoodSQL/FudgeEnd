@@ -11,17 +11,10 @@ import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
-
-
-
-import {
-  Table,
-  TableBody,
-  TableHeader,
-  TableHeaderColumn,
-  TableRow,
-  TableRowColumn,
-} from 'material-ui/Table';
+import {Table,TableBody,TableHeader,TableHeaderColumn,TableRow,TableRowColumn,} from 'material-ui/Table';
+import IconButton from 'material-ui/IconButton';
+import SvgIcon from 'material-ui/SvgIcon';
+import pantry from '../pantry.js'
 
 const fruit = [
     'Apple', 'Apricot', 'Avocado',
@@ -57,27 +50,9 @@ const style = {
 const styleTab = {
     backgroundColor: '#C20F00',
   };
-  
 
-const tableData = [
-  {
-    item: 'Rice',
-    amount: '2kg',
-  },
-  {
-    item: 'Beans',
-    amount: '3kg',
-  },
-  {
-    item: 'Shrimp',
-    amount: '400g',
-  },
-  {
-    item: 'Pepper',
-    amount: '3x',
-  },
-];
 
+var pantry_list = []
 
 class Pantry extends Component {
     constructor(props) {
@@ -86,10 +61,15 @@ class Pantry extends Component {
             selected: [],
             value: 0,
             open: false,
-            qtd: 1,
+            unit: '',
             searchText: '',
             amount: '',
         };   
+    }
+
+    componentWillMount(){
+        pantry_list = pantry.getPantry(localStorage.user['id'])
+        console.log(pantry_list)
     }
 
     handleOpen = () => {
@@ -126,16 +106,21 @@ class Pantry extends Component {
     });
     };
 
-    handleChangeSelect = (event, index, value) => this.setState({qtd : value});
+    handleChangeSelect = (event, index, value) => this.setState({unit : value});
     
     handleAdd = (event) => {
         if(this.state.searchText.length > 0){
-            tableData.push(
+            pantry_list[this.state.value]['items'].push(
                 {
-                    item: this.state.searchText,
-                    amount: this.state.amount+this.state.qtd,
+                    id: 122,
+                    name: this.state.searchText,
+                    amount: this.state.amount,
+                    unit: this.state.unit
                 },
             )
+            this.state.searchText = '',
+            this.state.amount = '',
+            this.state.unit = '',           
             this.forceUpdate()
         }
     }
@@ -194,7 +179,7 @@ class Pantry extends Component {
                         floatingLabelFixed={true}/>
                         <SelectField
                         floatingLabelText="Unit"
-                        value={this.state.qtd}
+                        value={this.state.unit}
                         onChange={this.handleChangeSelect}>
                             <MenuItem value={"Kg"} primaryText="Kg" />
                             <MenuItem value={"g"} primaryText="g" />
@@ -207,12 +192,14 @@ class Pantry extends Component {
                     <Tabs
                     value={this.state.value}
                     onChange={this.handleChangeTab}>
-                        <Tab style={styleTab} label="Tab A" value={0}/>
-                        <Tab style={styleTab} label="Tab B" value={1}/>
+                    {pantry_list.map( (row, index) => (
+                        <Tab style={styleTab} label={row['pantry_name']} value={index}/>
+                    ))}
                     </Tabs>
                     <SwipeableViews
                     index={this.state.value}
                     onChangeIndex={this.handleChangeTab}>
+                    {pantry_list.map( (pantry, index) => (
                         <Table 
                             onRowSelection={this.handleRowSelection}
                             selectable
@@ -226,35 +213,15 @@ class Pantry extends Component {
                             </TableRow>
                             </TableHeader>
                                 <TableBody displayRowCheckbox deselectOnClickaway={false}>
-                                {tableData.map( (row, index) => (
+                                {pantry['items'].map( (row, index) => (
                                 <TableRow key={index} selected={this.isSelected(index)}>
-                                    <TableRowColumn>{row.item}</TableRowColumn>
-                                    <TableRowColumn>{row.amount}</TableRowColumn>
+                                    <TableRowColumn>{row.name}</TableRowColumn>
+                                    <TableRowColumn>{row.amount}{row.unit}</TableRowColumn>
                                 </TableRow>
                                 ))}
                             </TableBody>
                         </Table>
-                        <Table 
-                            onRowSelection={this.handleRowSelection}
-                            selectable
-                            multiSelectable>
-                            <TableHeader
-                            enableSelectAll
-                            adjustForCheckbox>
-                            <TableRow>
-                                <TableHeaderColumn>Item</TableHeaderColumn>
-                                <TableHeaderColumn>Amount</TableHeaderColumn>
-                            </TableRow>
-                            </TableHeader>
-                                <TableBody displayRowCheckbox deselectOnClickaway={false}>
-                                {tableData.map( (row, index) => (
-                                <TableRow key={index} selected={this.isSelected(index)}>
-                                    <TableRowColumn>{row.item}</TableRowColumn>
-                                    <TableRowColumn>{row.amount}</TableRowColumn>
-                                </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
+                    ))}
                     </SwipeableViews>
                     <CardActions>
                         <FloatingActionButton 
@@ -264,6 +231,17 @@ class Pantry extends Component {
                                 backgroundColor='#FF2B19'>
                             <ContentAdd />
                         </FloatingActionButton>
+                        {this.state.selected.length > 0 && this.state.selected != "none" ? 
+                            <IconButton 
+                            tooltip="Delete selected"
+                            onClick={this.handleOpen}>
+                                <SvgIcon color='black'>
+                                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                                    <path d="M0 0h24v24H0z" fill="none"/>
+                                </SvgIcon>
+                            </IconButton>  
+                            : null
+                        }
                     </CardActions>
                 </Card>
             </div>
