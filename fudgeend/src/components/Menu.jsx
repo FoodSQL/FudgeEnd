@@ -16,16 +16,14 @@ class componentName extends Component {
     }
 
     render() {
-        const { loading } = this.state.loading;
-        
-        if(loading) {
-            return <Preloader/>; // render null when app is not ready
-          }else{
+        if (this.state.loading) {
+            return <Preloader />;
+        } else {
             return (
                 <div className="row">
                     <div className="col s12 m4 l2"></div>
-                    <div className="col s12 m4 l7"><RecipesWrapper/></div>
-                    <div className="col s12 m4 l3"><Pantry/></div>
+                    <div className="col s12 m4 l7"><RecipesWrapper /></div>
+                    <div className="col s12 m4 l3"><Pantry /></div>
                 </div>
             );
         }

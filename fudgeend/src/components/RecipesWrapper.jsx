@@ -1,64 +1,73 @@
 import React, { Component } from 'react';
-import {Card, CardActions, CardHeader, CardMedia, CardTitle, CardText} from 'material-ui/Card';
-
+import { Card, CardActions, CardHeader, CardMedia, CardTitle, CardText } from 'material-ui/Card';
+import Preloader from './Preloader'
+import recipe from '../actions/recipe.js'
+import pantry from '../actions/pantry.js'
 import Chip from 'material-ui/Chip';
 
-const recipesData = [
-    {
-      item: 'Pasta & Pesto',
-      ingredients: [{val : 'Pasta'},{val:'Pesto'},{val:'Cheese'},{val:'Love ❤️'}],
-    },
-    {
-      item: 'Rice & Beans',
-      ingredients: ['Rice','Beans'],
-      ingredients: [{val : 'Rice'},{val:'Beans'}],
-    },
-    {
-      item: 'Shrimp with cheese',
-      ingredients: [{val : 'Riccota Cheese'},{val:'Shrimp'},{val:'Garlic'}],
-    },
-    {
-      item: 'Pepper made Chicken',
-      ingredients: [{val : 'Brocolli'},{val:'Malaysian Pepper'},{val:'Chicken'}],
-    },
-  ];
-
-  const styles = {
+const styles = {
     chip: {
-      margin: 4,
+        margin: 4,
     },
     wrapper: {
-      display: 'flex',
-      flexWrap: 'wrap',
-      margin: '0 0 7px 0',
+        display: 'flex',
+        flexWrap: 'wrap',
+        margin: '0 0 7px 0',
     },
-  };
-  
+};
+
+var user = null;
+var recipe_list = [];
 
 class RecipesWrapper extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            loading: true,
+        }
+    }
+    componentWillMount() {
+        //user = JSON.parse(localStorage.getItem("user"));
+        //recipe.getRecipes()
+        pantry.subscribe('ids', (dados) => {
+            recipe_list = recipe.getRecipes(dados);
+            if (recipe_list) {
+                this.setState({ loading: false });
+            }
+        })
+    }
+
     render() {
-        return (
-            <div>
+        if (this.state.loading) {
+            return (
                 <Card>
-                    <CardTitle title="Recipes" subtitle="Check-out everyone's Recipes here!" />
-                    <div className='recipesContainer'>
-                        {recipesData.map( (row, index) => (
-                            <Card>
-                                <CardTitle title={row.item} subtitle={'The best ' + row.item + ' ever made!'}/>
-                                <div style={styles.wrapper}>
-                                {row.ingredients.map( (row, index) => (
-                                    <Chip style={styles.chip}>
-                                        {row.val}
-                                    </Chip>
-                                ))}
-                                </div>
-                            </Card>
-                        ))}
-                    </div>
+                    <CardTitle title="Recipes" subtitle="Getting the best recomendations for you!" />
+                    <Preloader />
                 </Card>
-            </div>
-        );
+            );
+        } else {
+            return (
+                <div>
+                    <Card>
+                        <CardTitle title="Recipes" subtitle="Check-out everyone's Recipes here!" />
+                        <div className='recipesContainer'>
+                            {recipe_list.map((row, index) => (
+                                <Card>
+                                    <CardTitle title={row.recipe_name} subtitle={'The best ' + row.recipe_name + ' ever made!'} />
+                                    <div style={styles.wrapper}>
+                                        {row.recipe_ingredients.map((row, index) => (
+                                            <Chip style={styles.chip}>
+                                                {row.ingredient_name}
+                                            </Chip>
+                                        ))}
+                                    </div>
+                                </Card>
+                            ))}
+                        </div>
+                    </Card>
+                </div>
+            );
+        }
     }
 }
-
 export default RecipesWrapper;

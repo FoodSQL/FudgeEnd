@@ -4,7 +4,7 @@ import './App.css';
 import Navbar from './components/Navbar'
 import Menu from './components/Menu'
 import Login from './components/Login'
-import './materialize/css/materialize.css'
+import './css/materialize.css'
 import './css/style.css'
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 
@@ -56,7 +56,7 @@ class App extends Component {
     return (
       <MuiThemeProvider>
         <div>
-        <Navbar user={this.state.name} logged={this.state.logged} loggedOut={this.loggedOut}/>
+        <Navbar logged={this.state.logged} loggedOut={this.loggedOut}/>
         { this.switchComponent() }  
         </div>
       </MuiThemeProvider>
