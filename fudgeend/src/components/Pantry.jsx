@@ -16,7 +16,6 @@ import IconButton from 'material-ui/IconButton';
 import SvgIcon from 'material-ui/SvgIcon';
 import Snackbar from 'material-ui/Snackbar';
 import pantry from '../actions/pantry.js'
-import ingredients from '../variables/ingredients.js'
 
 const style = {
     marginRight: 20,
@@ -27,8 +26,6 @@ const styleTab = {
 };
 
 
-var pantry_list = [];
-var pantry_list_ids = [];
 var deletedItems = [];
 var user = {};
 
@@ -36,6 +33,9 @@ class Pantry extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            pantry_list: [],
+            ingredients: [],
+            pantry_list_ids: [],
             selected: [],
             value: 0,
             new_item_open: false,
@@ -51,32 +51,42 @@ class Pantry extends Component {
     }
 
     componentWillMount() {
+        pantry.getIngredients((res) => {
+            console.log(res);
+            this.setState({ ingredients: res });
+        });
         user = JSON.parse(localStorage.getItem("user"));
-        pantry_list = pantry.getPantry(user.id)
-        pantry_list.forEach((item) => {
-            pantry_list_ids.push(item['pantry_id'])
-        })
-        user['pantry_list'] = pantry_list_ids;
-        localStorage.setItem('user', JSON.stringify(user))
-        if (pantry_list.length > 0) {
-            this.setState({ pantry_valid: false })
+        pantry.getPantry(user.id, (res) => {
+            this.setState({ pantry_list: res });
+            var parc_list = []
+            parc_list = this.state.pantry_list_ids;
+            res.forEach((item) => {
+                parc_list.push(item['pantry_id'])
+            })
+            this.setState({ pantry_list_ids: parc_list })
+            user['pantry_list'] = this.state.pantry_list_ids;
+            localStorage.setItem('user', JSON.stringify(user));
+        });
+        this.forceUpdate();
+        if (this.state.pantry_list) {
+            this.setState({ pantry_valid: false });
         }
-        console.log(pantry_list)
     }
 
     handleOpenNewItem = () => {
         this.setState({ new_item_open: true });
     };
+
     handleOpenNewPantry = () => {
-        this.setState({ new_pantry_open: true })
-    }
+        this.setState({ new_pantry_open: true });
+    };
 
     handleCloseNewItem = () => {
         this.setState({ new_item_open: false });
     };
     handleCloseNewPantry = () => {
-        this.setState({ new_pantry_open: false })
-    }
+        this.setState({ new_pantry_open: false });
+    };
 
     isSelected = (index) => {
         return this.state.selected.indexOf(index) !== -1;
@@ -110,12 +120,11 @@ class Pantry extends Component {
 
     handleAdd = (event) => {
         if (this.state.searchText.length > 0) {
-
-            pantry.addItem(pantry_list[this.state.value]['pantry_id'], 122, this.state.amount, this.state.unit, (result) => {
+            pantry.addItem(this.state.pantry_list[this.state.value]['pantry_id'], 4, this.state.amount, this.state.unit, (result) => {
                 if (result.status == 200) {
-                    pantry_list[this.state.value]['items'].push(
+                    this.state.pantry_list[this.state.value]['items'].push(
                         {
-                            item_id: 122,
+                            item_id: 4,
                             item_name: this.state.searchText,
                             item_amount: this.state.amount,
                             item_unit: this.state.unit
@@ -135,22 +144,23 @@ class Pantry extends Component {
     handleDelete = (event) => {
         var current_pantry = this.state.value;
         deletedItems = [];
-        this.setState({ message: 'Selected items deleted from ' + pantry_list[current_pantry]['pantry_name'] });
+        this.setState({ message: 'Selected items deleted from ' + this.state.pantry_list[current_pantry]['pantry_name'] });
         if (this.state.selected === 'all') {
-            deletedItems = pantry_list[current_pantry]['items'];
+            deletedItems = this.state.pantry_list[current_pantry]['items'];
         } else {
             this.state.selected.map(function (item) {
-                deletedItems.push(pantry_list[current_pantry]['items'][item]);
+                //deletedItems.push(this.state.pantry_list[current_pantry]['items'][item]);        
             })
         }
         console.log(deletedItems);
-        pantry.removeItem(pantry_list[current_pantry]['pantry_id'], deletedItems, (result) => {
+        console.log('here: '+this.state.pantry_list[current_pantry]['items'][0])
+        pantry.removeItem(this.state.pantry_list[current_pantry]['pantry_id'], [this.state.pantry_list[current_pantry]['items'][0]], (result) => {
             if (result.status === 200) {
                 if (this.state.selected === 'all') {
-                    pantry_list[current_pantry]['items'] = []
+                    this.state.pantry_list[current_pantry]['items'] = []
                 } else {
                     this.state.selected.map(function (item) {
-                        pantry_list[current_pantry]['items'].splice(item, 1);
+                        this.state.pantry_list[current_pantry]['items'].splice(item, 1);
                     })
                 }
             }
@@ -161,18 +171,29 @@ class Pantry extends Component {
 
     handleNewPantry = (event) => {
         if (this.state.new_pantry_name.length > 0) {
-            var new_pantry = pantry.newPantry(user.id, this.state.new_pantry_name);
-            if (new_pantry === null) {
-                alert("Something went wrong when creating your pantry");
-            } else {
-                new_pantry.items = [];
-                pantry_list.push(new_pantry);
-                pantry_list_ids.push(new_pantry['pantry_id']);
-                user['pantry_list'] = pantry_list_ids;
-                localStorage.setItem('user', JSON.stringify(user));
-                this.forceUpdate();
-            }
-            this.setState({ new_pantry_name: '', pantry_valid: false });
+            console.log(this.state.new_pantry_name)
+            pantry.newPantry(user.id, this.state.new_pantry_name, (res) => {
+                console.log(res)
+                if (res === null) {
+                    alert("Something went wrong when creating your pantry");
+                } else {
+                    console.log(res)
+                    res['items'] = [];
+                    var parc_list = this.state.pantry_list;
+                    parc_list.push(res);
+                    var parc_list2 = this.state.pantry_list_ids;
+                    parc_list2.push(res['pantry_id']);
+                    this.setState({
+                        pantry_list: parc_list,
+                        pantry_list_ids: parc_list2,
+                    })
+                    user['pantry_list'] = this.state.pantry_list_ids;
+                    localStorage.setItem('user', JSON.stringify(user));
+                    this.setState({ new_pantry_name: '', pantry_valid: false });
+                    this.forceUpdate();
+                }
+            });
+            this.setState({ new_pantry_name: '' });
             this.handleCloseNewPantry();
         }
     };
@@ -200,7 +221,7 @@ class Pantry extends Component {
             new_pantry_name: event.target.value,
         });
     };
-    
+
     handleTouchTap = () => {
         this.setState({
             undo: true,
@@ -209,7 +230,7 @@ class Pantry extends Component {
 
     handleActionTouchTap = () => {
         var worked = false;
-        var pantry_id = pantry_list[this.state.value]['pantry_id'];
+        var pantry_id = this.state.pantry_list[this.state.value]['pantry_id'];
         deletedItems.forEach(function (item) {
             pantry.addItem(pantry_id, item.item_id, item.item_amount, item.item_unit, (result) => {
                 if (result.status == 200) {
@@ -220,7 +241,9 @@ class Pantry extends Component {
             })
         })
         if (worked) {
-            pantry_list[this.state.value]['items'].push.apply(pantry_list[this.state.value]['items'], deletedItems);
+            var parc_list = this.state.pantry_list
+            parc_list[this.state.value]['items'].push.apply(this.state.pantry_list[this.state.value]['items'], deletedItems);
+            this.setState({ pantry_list: parc_list })
         }
         deletedItems = [];
         this.forceUpdate()
@@ -292,7 +315,7 @@ class Pantry extends Component {
                             onUpdateInput={this.handleUpdateInput}
                             //filter={AutoComplete.caseInsensitiveFilter}
                             openOnFocus={true}
-                            dataSource={ingredients} />
+                            dataSource={this.state.ingredients} />
                         <TextField
                             fullWidth
                             floatingLabelText="Amount"
@@ -327,14 +350,14 @@ class Pantry extends Component {
                     <Tabs
                         value={this.state.value}
                         onChange={this.handleChangeTab}>
-                        {pantry_list.map((row, index) => (
+                        {this.state.pantry_list.map((row, index) => (
                             <Tab style={styleTab} label={row['pantry_name']} value={index} />
                         ))}
                     </Tabs>
                     <SwipeableViews
                         index={this.state.value}
                         onChangeIndex={this.handleChangeTab}>
-                        {pantry_list.map((pantry, index) => (
+                        {this.state.pantry_list.map((pantry, index) => (
                             <Table
                                 onRowSelection={this.handleRowSelection}
                                 selectable

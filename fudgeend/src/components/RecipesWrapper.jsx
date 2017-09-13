@@ -23,16 +23,33 @@ class RecipesWrapper extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            loading: true,
+            loading: false,
+            message: '',
         }
     }
     componentWillMount() {
-        //user = JSON.parse(localStorage.getItem("user"));
-        //recipe.getRecipes()
+        user = JSON.parse(localStorage.getItem("user"));
+        if (user['pantry_list']) {
+            if (user['pantry_list'].length === 0) {
+                this.setState({ message: "You don't have a Pantry yet, go ahead and create one" });
+            } else {
+                this.setState({
+                    loading: true,
+                    message: "Getting the best recipes for you!",
+                });
+            }
+        }
         pantry.subscribe('ids', (dados) => {
+            this.setState({
+                loading: true,
+                message: "Getting the best recipes for you!",
+            });
             recipe_list = recipe.getRecipes(dados);
             if (recipe_list) {
-                this.setState({ loading: false });
+                this.setState({
+                    loading: false,
+                    message: "Check-out everyone's Recipes here!",
+                });
             }
         })
     }
@@ -41,7 +58,7 @@ class RecipesWrapper extends Component {
         if (this.state.loading) {
             return (
                 <Card>
-                    <CardTitle title="Recipes" subtitle="Getting the best recomendations for you!" />
+                    <CardTitle title="Recipes" subtitle={this.state.message} />
                     <Preloader />
                 </Card>
             );
@@ -49,7 +66,7 @@ class RecipesWrapper extends Component {
             return (
                 <div>
                     <Card>
-                        <CardTitle title="Recipes" subtitle="Check-out everyone's Recipes here!" />
+                        <CardTitle title="Recipes" subtitle={this.state.message} />
                         <div className='recipesContainer'>
                             {recipe_list.map((row, index) => (
                                 <Card>
