@@ -114,7 +114,7 @@ export default window.auth = {
                     window.location.reload()
                 })
             }
-            callback(res)
+            callback(user)
         }).catch(err => err);
     }
 

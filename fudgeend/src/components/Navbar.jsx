@@ -4,7 +4,7 @@ import TextField from 'material-ui/TextField';
 import FlatButton from 'material-ui/FlatButton';
 import SvgIcon from 'material-ui/SvgIcon';
 import Subheader from 'material-ui/Subheader';
-
+import auth from '../actions/auth.js'
 var user = null;
 
 class Navbar extends Component {
@@ -68,7 +68,15 @@ class Navbar extends Component {
     }
 
     handleUpdateSettings = () => {
-
+        auth.updateUser(user.id, this.state.textFields.name, this.state.textFields.email, this.state.textFields.password, (res) => {
+            if(res !== null){
+                var user_parc = JSON.parse(localStorage.getItem("user"));                
+                user_parc.id = res['user_id']
+                user_parc.name = res['user_name']
+                user_parc.email = res['user_email']
+                localStorage.setItem('user', user_parc)
+            }
+        })
     }
 
     render() {
