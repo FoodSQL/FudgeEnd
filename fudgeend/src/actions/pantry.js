@@ -45,7 +45,7 @@ export default window.pantry = {
                             var ingredient = {
                                 item_id: item['item_id'],
                                 item_name: item['item_name'],
-                                item_amount: item['item_amount'],
+                                item_amount: Math.floor((Math.random() * 10) + 1),//item['item_amount'],
                                 item_unit: 'kg',
                             }
                             items.push(ingredient);
@@ -135,15 +135,20 @@ export default window.pantry = {
             method: 'GET',
         }).then((response) => {
             console.log('status: ' + response.status);
-            var ingredient_list = []
+            var ingredient_list = [];
+            var ingredient_list_map = [];
             if (response.status === 200) {
                 let data = response.json().then((data) => {
                     data['ingredients'].forEach(function (ingred) {
-                        ingredient_list[ingred['item_name']] = ingred['item_id'];
+                        ingredient_list.push({
+                            text: ingred['item_name'],
+                            value: ingred['item_id'],
+                        })
+                        ingredient_list_map[ingred['item_name']] = ingred['item_id'];
                     })
                 })
             }
-            callback(ingredient_list);
+            callback(ingredient_list, ingredient_list_map);
         });
     },
 

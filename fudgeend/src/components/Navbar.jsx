@@ -58,6 +58,7 @@ class Navbar extends Component {
 
     logoout = () => {
         localStorage.removeItem('user');
+        user = null;
         this.props.loggedOut();
     }
 
