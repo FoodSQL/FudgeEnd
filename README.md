@@ -3,8 +3,10 @@ Repository to handle FrontEnd in the FoodSQL application
 
 ## Install & Run
 To run the FudgeEnd Application you only need to run the following commands inside /fudgeend:
-- npm install
-- npm start
+```
+    npm install
+    npm start
+```
 Then you're ready to go!
 
 ## Folders and Mock
