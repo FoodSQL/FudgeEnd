@@ -71,30 +71,40 @@ class RecipesWrapper extends Component {
         var color = lightGreenA400;
         var darkerColor = lightGreenA700;
         var value = 'Perfect Match';
-        if(percentage <= 20){
+        var p;
+        if(percentage === 1){
             color = red400;
             darkerColor = red900;
             value = "Bad Match";
-        } else if( percentage <= 35){
+        } else if( percentage === 35){
             color = orange400;
             darkerColor = orange900;
             value = "Poor Match";
-        }else if( percentage <= 70){
+        }else if( percentage === 2){
             color = yellow400;
             darkerColor = yellow900;
             value = "Fair Match";
-        }else if( percentage < 100){
+        }else if( percentage === 3){
             color = greenA400;
             darkerColor = greenA700;
-            value = "Fair Match";
+            value = "Perfect Match";
         }
+
+        if(percentage/3 === 1){
+            p = 100;
+        }
+        else{
+            p = (percentage/3)*100;
+            p = p.toFixed(1)
+        }
+
         return(
                 <Chip
                 backgroundColor={color}
                 style={styles.chip}
                 >
                 <Avatar size={32} color={color} backgroundColor={darkerColor}>
-                    {percentage}
+                    {p}
                 </Avatar>
                     {value}
                 </Chip>

@@ -12,7 +12,7 @@ export default window.recipe = {
                     var recipe = {
                         recipe_id: recipe_item['recipe_id'],
                         recipe_name: recipe_item['recipe_name'],
-                        percentage: recipe_item['percentage'],
+                        percentage: recipe_item['recipe_percentage'],
                         recipe_ingredients: []
                     }
                     var items = []
