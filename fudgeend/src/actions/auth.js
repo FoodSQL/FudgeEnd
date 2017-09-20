@@ -112,9 +112,9 @@ export default window.auth = {
                     }
                     localStorage.setItem('user', JSON.stringify(user));
                     window.location.reload()
+                    callback(user)
                 })
             }
-            callback(user)
         }).catch(err => err);
     }
 

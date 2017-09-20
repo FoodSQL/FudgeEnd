@@ -69,13 +69,10 @@ class Navbar extends Component {
 
     handleUpdateSettings = () => {
         auth.updateUser(user.id, this.state.textFields.name, this.state.textFields.email, this.state.textFields.password, (res) => {
-            if(res !== null){
-                var user_parc = JSON.parse(localStorage.getItem("user"));                
-                user_parc.id = res['user_id']
-                user_parc.name = res['user_name']
-                user_parc.email = res['user_email']
-                localStorage.setItem('user', user_parc)
-            }
+            localStorage.removeItem('user');
+            user = null;
+            this.props.loggedOut();
+            alert('User updated! - Login to validate')
         })
     }
 
